@@ -1,0 +1,65 @@
+module [
+    send!,
+    get!,
+    get_utf8!,
+]
+
+import http.Request exposing [Request, Method]
+import http.Response exposing [Response]
+import InternalHttp
+import Host
+
+## Send an HTTP request, succeeds with a value of [Str] or fails with an
+## [Err].
+##
+## ```
+## # Prints out the HTML of the Roc-lang website.
+## response = ||
+##     Http.send!({ Http.default_request & url: "https://www.roc-lang.org" })?
+##
+##
+## Str.from_utf8(response.body) ?? "Invalid UTF-8"
+## |> Stdout.line
+## ```
+send! : Request => Result Response [HttpErr [Timeout, NetworkError, BadBody, Other (List U8)]]
+send! = |request|
+    host_request = InternalHttp.to_host_request(request)
+
+    response = Host.send_request!(host_request) |> InternalHttp.from_host_response
+
+    other_error_prefix = Str.to_utf8("OTHER ERROR\n")
+
+    if response.status == 408 and response.body == Str.to_utf8("Request Timeout") then
+        Err(HttpErr(Timeout))
+    else if response.status == 500 and response.body == Str.to_utf8("Network Error") then
+        Err(HttpErr(NetworkError))
+    else if response.status == 500 and response.body == Str.to_utf8("Bad Body") then
+        Err(HttpErr(BadBody))
+    else if response.status == 500 and List.starts_with(response.body, other_error_prefix) then
+        Err(HttpErr(Other(List.drop_first(response.body, List.len(other_error_prefix)))))
+    else
+        Ok(response)
+
+## Try to perform an HTTP get request and convert (decode) the received bytes into a Roc type.
+## Very useful for working with Json.
+##
+## ```
+## import json.Json
+##
+## # On the server side we send `Encode.to_bytes {foo: "Hello Json!"} Json.utf8`
+## { foo } = Http.get!("http://localhost:8000", Json.utf8)?
+## ```
+get! : Str, fmt => Result body [HttpDecodingFailed, HttpErr _] where body implements Decoding, fmt implements DecoderFormatting
+get! = |uri, fmt|
+    response = send!(Request.from_method(GET).with_uri(uri))?
+
+    Decode.from_bytes(response.body, fmt)
+    |> Result.map_err(|_| HttpDecodingFailed)
+
+get_utf8! : Str => Result Str [BadBody Str, HttpErr _]
+get_utf8! = |uri|
+    response = send!(Request.from_method(GET).with_uri(uri))?
+
+    response.body
+    |> Str.from_utf8
+    |> Result.map_err(|_| BadBody("Invalid UTF-8"))
