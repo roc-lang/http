@@ -121,6 +121,7 @@ def build_and_run_examples(examples: list[Path], build_dir: Path) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
+    parser.add_argument("--bundle-path", type=Path, help="Use an existing bundle instead of creating one")
     parser.add_argument("--skip-build-run", action="store_true", help="Skip compiled example execution")
     args = parser.parse_args()
 
@@ -136,7 +137,16 @@ def main() -> None:
         bundle_dir.mkdir()
         examples_dir.mkdir()
 
-        bundle_path = bundle_package(bundle_dir)
+        if args.bundle_path is None:
+            bundle_path = bundle_package(bundle_dir)
+        else:
+            source_bundle = args.bundle_path.resolve()
+            if not source_bundle.exists():
+                raise SystemExit(f"Bundle does not exist: {source_bundle}")
+
+            bundle_path = bundle_dir / source_bundle.name
+            shutil.copy2(source_bundle, bundle_path)
+
         server, base_url = start_server(bundle_dir)
         try:
             bundle_url = f"{base_url}/{bundle_path.name}"

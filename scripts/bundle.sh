@@ -26,8 +26,15 @@ mkdir -p "$output_dir"
 output_dir="$(cd "$output_dir" && pwd)"
 
 cd "$root_dir/package"
+roc_files=(main.roc)
+for file in *.roc; do
+    if [ "$file" != "main.roc" ]; then
+        roc_files+=("$file")
+    fi
+done
+
 if ((${#args[@]} > 0)); then
-    roc bundle *.roc --output-dir "$output_dir" "${args[@]}"
+    roc bundle "${roc_files[@]}" --output-dir "$output_dir" "${args[@]}"
 else
-    roc bundle *.roc --output-dir "$output_dir"
+    roc bundle "${roc_files[@]}" --output-dir "$output_dir"
 fi
