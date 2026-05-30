@@ -1,5 +1,7 @@
-package [
-    Method,
-    Request,
-    Response,
-] {}
+package
+	[
+		Method,
+		Request,
+		Response,
+	]
+	{}

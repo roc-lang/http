@@ -30,3 +30,42 @@ metadata in those records based on new HTTP spec releases.
 `Method` should in the future become a non-exhaustive custom tag union, also
 for backwards-compatibility. This means if new HTTP spec releases introduce
 new relevant methods, we can expand the tag union to include them as a nonbreaking change.
+
+## Examples
+
+The `examples/` directory contains small apps that demonstrate requests, responses, headers,
+body bytes, timeouts, custom methods, and pure mock HTTP workflows.
+
+Run an example with:
+
+```bash
+roc examples/hello_request.roc
+```
+
+Run the example test module with:
+
+```bash
+roc test examples/tests.roc
+```
+
+## Bundling
+
+Create a package bundle with:
+
+```bash
+scripts/bundle.sh
+```
+
+This writes a `.tar.zst` package archive to `dist/`.
+
+## CI checks
+
+Run the same checks used by CI with:
+
+```bash
+ci/all_tests.sh
+```
+
+The checks format the package and examples, check/test the package, generate docs, bundle the
+package, serve that bundle from localhost, and then check, test, run, build, and execute every
+example against the bundled package URL.
