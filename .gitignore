@@ -1,0 +1,5 @@
+build-output/
+dist/
+generated-docs/
+roc-src/
+__pycache__/
