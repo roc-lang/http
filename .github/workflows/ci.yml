@@ -2,9 +2,10 @@ name: CI
 
 on:
   pull_request:
-  push:
-    branches:
-      - main
+  schedule:
+    # Run daily at 10 AM UTC, after the nightlies are typically published.
+    - cron: '0 10 * * *'
+  workflow_dispatch: # Allow manual triggering
 
 jobs:
   test:
@@ -15,7 +16,7 @@ jobs:
       matrix:
         os:
           - ubuntu-24.04
-          - macos-15
+          - macos-26
           - windows-2025
     defaults:
       run:
@@ -26,29 +27,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Zig
-        uses: mlugg/setup-zig@8d6198c65fb0feaa111df26e6b467fea8345e46f # ratchet:mlugg/setup-zig@v2.0.5
+        uses: mlugg/setup-zig@d1434d08867e3ee9daa34448df10607b98908d29 # 2.2.1
         with:
-          version: 0.15.2
+          version: 0.16.0
           use-cache: false
 
-      - name: Clone Roc source
-        run: |
-          ROC_COMMIT=$(python3 ci/get_roc_commit.py)
-
-          git init roc-src
-          cd roc-src
-          git remote add origin https://github.com/roc-lang/roc
-          git fetch --depth 1 origin "$ROC_COMMIT"
-          git checkout --detach "$ROC_COMMIT"
-
-      - name: Build Roc
-        uses: roc-lang/roc/.github/actions/flaky-retry@3d0fdde9ae6ffb5ef411f8c8c2fc2cdce22a74fe
+      - name: Install Roc
+        uses: roc-lang/setup-roc@30ff82b396cbeb36a662a18f5c652773efb43e72
         with:
-          command: cd roc-src && zig build roc
-          error_string_contains: "build.zig.zon"
+          # Installs the latest nightly from https://github.com/roc-lang/nightlies
+          version: nightly-new-compiler
 
-      - name: Add Roc to PATH
-        run: echo "$(pwd)/roc-src/zig-out/bin" >> "$GITHUB_PATH"
 
       - name: Run checks
         run: ci/all_tests.sh
