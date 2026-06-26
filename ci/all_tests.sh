@@ -6,11 +6,10 @@ cd "$root_dir"
 
 if [ -n "${ROC_HTTP_TMPDIR:-}" ]; then
     tmp_base="$ROC_HTTP_TMPDIR"
-elif [ -d /private/tmp ]; then
-    tmp_base=/private/tmp
 else
-    tmp_base="${TMPDIR:-/tmp}"
+    tmp_base="$root_dir/.roc-http-tmp"
 fi
+export ROC_HTTP_TMPDIR="$tmp_base"
 
 tmp_dir="$tmp_base/roc-http-ci"
 docs_dir="$tmp_dir/docs"

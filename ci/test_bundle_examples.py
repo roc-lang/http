@@ -123,8 +123,9 @@ def main() -> None:
     parser.add_argument("--skip-build-run", action="store_true", help="Skip compiled example execution")
     args = parser.parse_args()
 
-    default_tmp = Path("/private/tmp") if Path("/private/tmp").exists() else Path(tempfile.gettempdir())
+    default_tmp = ROOT / ".roc-http-tmp"
     tmp_parent = Path(os.environ.get("ROC_HTTP_TMPDIR", default_tmp))
+    tmp_parent.mkdir(parents=True, exist_ok=True)
 
     with tempfile.TemporaryDirectory(prefix="roc-http-bundle-", dir=tmp_parent) as tmp:
         tmp_dir = Path(tmp)
