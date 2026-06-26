@@ -1,5 +1,5 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/0.7/DuRUyJh31Gt41YArMcVcvybLa2bCWboccWQ7Zq1KZPZ6.tar.zst",
+	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/0.9/8GdFEvQYS3TeAZxKvTzCLVdQiomweGtXcdZkXNDEeABq.tar.zst",
 	http: "../package/main.roc",
 }
 
@@ -11,7 +11,7 @@ header_to_str = |(name, value)|
 	"${name}: ${value}"
 
 headers_to_str = |headers|
-	headers.map(header_to_str).join_with("\n")
+	Str.join_with(headers.map(header_to_str), "\n")
 
 main! = |_args| {
 	request0 = Request.from_method(GET)

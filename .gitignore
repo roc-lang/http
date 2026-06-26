@@ -3,3 +3,4 @@ dist/
 generated-docs/
 roc-src/
 __pycache__/
+.roc-http-tmp/
