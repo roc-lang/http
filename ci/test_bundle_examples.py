@@ -86,14 +86,14 @@ def copy_examples_with_bundle_url(examples_dir: Path, bundle_url: str) -> list[P
 
 def run_example_checks(examples: list[Path]) -> None:
     for example in examples:
-        run(["roc", "check", str(example), "--no-cache"])
+        run(["roc", "check", example.name, "--no-cache"], cwd=example.parent)
 
 
 def run_example_apps(examples: list[Path]) -> None:
     for example in examples:
         if example.name == "tests.roc":
             continue
-        run(["roc", str(example), "--no-cache"])
+        run(["roc", example.name, "--no-cache"], cwd=example.parent)
 
 
 def run_example_tests(examples: list[Path]) -> None:
@@ -101,7 +101,7 @@ def run_example_tests(examples: list[Path]) -> None:
     if len(tests) != 1:
         raise SystemExit("Expected exactly one examples/tests.roc file")
 
-    run(["roc", "test", str(tests[0]), "--no-cache"])
+    run(["roc", "test", tests[0].name, "--no-cache"], cwd=tests[0].parent)
 
 
 def build_and_run_examples(examples: list[Path], build_dir: Path) -> None:
@@ -113,7 +113,7 @@ def build_and_run_examples(examples: list[Path], build_dir: Path) -> None:
             continue
 
         output = build_dir / f"{example.stem}{exe_suffix}"
-        run(["roc", "build", str(example), f"--output={output}", "--no-cache"])
+        run(["roc", "build", example.name, f"--output={output}", "--no-cache"], cwd=example.parent)
         run([str(output)])
 
 
