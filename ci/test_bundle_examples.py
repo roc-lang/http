@@ -85,7 +85,8 @@ def copy_examples_with_bundle_url(examples_dir: Path, bundle_url: str) -> list[P
 
 
 def run_example_checks(examples: list[Path]) -> None:
-    run(["roc", "fmt", "--check", str(examples[0].parent)])
+    for example in examples:
+        run(["roc", "fmt", "--check", str(example)])
 
     for example in examples:
         run(["roc", "check", str(example), "--no-cache"])

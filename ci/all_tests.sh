@@ -37,6 +37,14 @@ echo ""
 echo "Generating package docs..."
 roc docs package/main.roc --output="$docs_dir"
 
+case "$(uname -s)" in
+    MINGW* | MSYS* | CYGWIN*)
+        echo ""
+        echo "Skipping package bundling on Windows."
+        exit 0
+        ;;
+esac
+
 echo ""
 echo "Bundling package..."
 scripts/bundle.sh --output-dir "$bundle_dir"
