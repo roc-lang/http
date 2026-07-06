@@ -1,5 +1,5 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/0.9/8GdFEvQYS3TeAZxKvTzCLVdQiomweGtXcdZkXNDEeABq.tar.zst",
+	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
 	http: "../package/main.roc",
 }
 
@@ -17,7 +17,7 @@ ParsedHeaders : {
 parse_headers : Str -> Try(ParsedHeaders, Encoding.HttpHeader)
 parse_headers = |raw| Encoding.HttpHeader.parse(raw)
 
-main! : List(Str) => Try({}, [Exit(I32)])
+main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
 	request = Request.from_method(GET)
 		.with_uri("https://api.example.com/items")
@@ -29,7 +29,7 @@ main! = |_args| {
 			],
 		)
 
-	Stdout.line!(Str.inspect(request.headers()))
+	Stdout.line!(Str.inspect(request.headers()))?
 
 	Ok({})
 }
