@@ -1,18 +1,20 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/0.9/8GdFEvQYS3TeAZxKvTzCLVdQiomweGtXcdZkXNDEeABq.tar.zst",
+	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
 	http: "../package/main.roc",
 }
 
 import pf.Stdout
 import http.Response
 
+main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
-	response0 = Response.from_status(404)
-	response1 = Response.add_header(response0, "Content-Type", "text/plain")
-	response = Response.with_body(response1, Str.to_utf8("not found"))
+	response = Response.from_status(404)
+		.add_header("Content-Type", "text/plain")
+		.with_body("not found".to_utf8())
 
-	Stdout.line!("status: ${Response.status(response).to_str()}")
-	Stdout.line!("headers: ${Response.headers(response).len().to_str()}")
-	Stdout.line!("body bytes: ${Response.body(response).len().to_str()}")
+	Stdout.line!("status: ${response.status().to_str()}")?
+	Stdout.line!("headers: ${response.headers().len().to_str()}")?
+	Stdout.line!("body bytes: ${response.body().len().to_str()}")?
+
 	Ok({})
 }

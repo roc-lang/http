@@ -1,5 +1,5 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/0.9/8GdFEvQYS3TeAZxKvTzCLVdQiomweGtXcdZkXNDEeABq.tar.zst",
+	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
 	http: "../package/main.roc",
 }
 
@@ -7,19 +7,46 @@ import pf.Stdout
 import http.Method
 import http.Request
 
-header_to_str = |(name, value)|
-	"${name}: ${value}"
+ParsedHeaders : {
+	accept : Str,
+	content_length : U64,
+	x_optional : Try(Str, [Missing]),
+	x_trace_id : Str,
+}
 
-headers_to_str = |headers|
-	Str.join_with(headers.map(header_to_str), "\n")
+parse_headers : Str -> Try(ParsedHeaders, Encoding.HttpHeader)
+parse_headers = |raw| Encoding.HttpHeader.parse(raw)
 
+main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
-	request0 = Request.from_method(GET)
-	request1 = Request.with_uri(request0, "https://api.example.com/items")
-	request2 = Request.add_header(request1, "Accept", "application/json")
-	request3 = Request.add_header(request2, "X-Trace-Id", "demo-123")
-	request = Request.add_header(request3, "X-Trace-Id", "demo-456")
+	request = Request.from_method(GET)
+		.with_uri("https://api.example.com/items")
+		.with_headers(
+			[
+				{ name: "Accept", value: "application/json" },
+				{ name: "X-Trace-Id", value: "demo-123" },
+				{ name: "X-Trace-Id", value: "demo-456" },
+			],
+		)
 
-	Stdout.line!(headers_to_str(Request.headers(request)))
+	Stdout.line!(Str.inspect(request.headers()))?
+
 	Ok({})
 }
+
+## Header parsing decodes required fields and missing optional headers.
+expect {
+	parsed = parse_headers("accept: application/json\r\ncontent-length: 42\r\nx-trace-id: demo-123\r\n")?
+	optional = parsed.x_optional ?? "none"
+
+	parsed.accept == "application/json"
+		and parsed.content_length == 42
+			and parsed.x_trace_id == "demo-123"
+				and optional == "none"
+}
+
+## Header parsing reports missing required fields.
+expect parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.MissingRequired)
+
+## Header parsing reports invalid field values.
+expect parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.BadHeader)

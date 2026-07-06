@@ -16,7 +16,9 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[1]
-LOCAL_PACKAGE = 'http: "../package/main.roc"'
+LOCAL_PACKAGE_PATH = "../package/main.roc"
+RELEASE_PACKAGE_PREFIX = "https://github.com/roc-lang/http/releases/download/"
+PACKAGE_DEPENDENCY_RE = re.compile(r'(?m)^(?P<indent>\s*)http:\s*"(?P<dependency>[^"]+)",\s*$')
 
 
 def run(cmd: list[str], *, cwd: Path = ROOT, stdin: str | None = None) -> subprocess.CompletedProcess[str]:
@@ -76,10 +78,25 @@ def copy_examples_with_bundle_url(examples_dir: Path, bundle_url: str) -> list[P
     examples = sorted(target_dir.glob("*.roc"))
     for example in examples:
         source = example.read_text()
-        if LOCAL_PACKAGE not in source:
-            raise SystemExit(f"{example.name} does not use the expected local package dependency")
+        rewritten = None
 
-        example.write_text(source.replace(LOCAL_PACKAGE, f'http: "{bundle_url}"'))
+        for match in PACKAGE_DEPENDENCY_RE.finditer(source):
+            dependency = match.group("dependency")
+            is_local_package = dependency == LOCAL_PACKAGE_PATH
+            is_release_package = dependency.startswith(RELEASE_PACKAGE_PREFIX) and dependency.endswith(".tar.zst")
+
+            if is_local_package or is_release_package:
+                rewritten = (
+                    source[: match.start()]
+                    + f'{match.group("indent")}http: "{bundle_url}",'
+                    + source[match.end() :]
+                )
+                break
+
+        if rewritten is None:
+            raise SystemExit(f"{example.name} does not use the expected http package dependency")
+
+        example.write_text(rewritten)
 
     return examples
 
@@ -97,11 +114,8 @@ def run_example_apps(examples: list[Path]) -> None:
 
 
 def run_example_tests(examples: list[Path]) -> None:
-    tests = [example for example in examples if example.name == "tests.roc"]
-    if len(tests) != 1:
-        raise SystemExit("Expected exactly one examples/tests.roc file")
-
-    run(["roc", "test", tests[0].name, "--no-cache"], cwd=tests[0].parent)
+    for example in examples:
+        run(["roc", "test", example.name, "--no-cache"], cwd=example.parent)
 
 
 def build_and_run_examples(examples: list[Path], build_dir: Path) -> None:

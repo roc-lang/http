@@ -37,7 +37,7 @@ jobs:
           use-cache: false
 
       - name: Install Roc
-        uses: roc-lang/setup-roc@bd311e2fb815a3d2255f7ee14a922f0b736e020b
+        uses: roc-lang/setup-roc@66d1ae2def87ec77b8670e9ac09c418df2f18c86
         with:
           # Installs the latest nightly from https://github.com/roc-lang/nightlies
           version: nightly-new-compiler
@@ -97,7 +97,7 @@ jobs:
           use-cache: false
 
       - name: Install Roc
-        uses: roc-lang/setup-roc@bd311e2fb815a3d2255f7ee14a922f0b736e020b
+        uses: roc-lang/setup-roc@66d1ae2def87ec77b8670e9ac09c418df2f18c86
         with:
           # Installs the latest nightly from https://github.com/roc-lang/nightlies
           version: nightly-new-compiler
@@ -135,7 +135,7 @@ jobs:
           path: dist
 
       - name: Install Roc
-        uses: roc-lang/setup-roc@bd311e2fb815a3d2255f7ee14a922f0b736e020b
+        uses: roc-lang/setup-roc@66d1ae2def87ec77b8670e9ac09c418df2f18c86
         with:
           # Installs the latest nightly from https://github.com/roc-lang/nightlies
           version: nightly-new-compiler
