@@ -7,19 +7,17 @@ import pf.Stdout
 import http.Method
 import http.Request
 
-header_to_str = |(name, value)|
-	"${name}: ${value}"
-
-headers_to_str = |headers|
-	Str.join_with(headers.map(header_to_str), "\n")
-
 main! = |_args| {
-	request0 = Request.from_method(GET)
-	request1 = Request.with_uri(request0, "https://api.example.com/items")
-	request2 = Request.add_header(request1, "Accept", "application/json")
-	request3 = Request.add_header(request2, "X-Trace-Id", "demo-123")
-	request = Request.add_header(request3, "X-Trace-Id", "demo-456")
+	request = Request.from_method(GET)
+		.with_uri("https://api.example.com/items")
+		.with_headers(
+			[
+				{ name: "Accept", value: "application/json" },
+				{ name: "X-Trace-Id", value: "demo-123" },
+				{ name: "X-Trace-Id", value: "demo-456" },
+			],
+		)
 
-	Stdout.line!(headers_to_str(Request.headers(request)))
+	Stdout.line!(Str.inspect(request.headers()))
 	Ok({})
 }

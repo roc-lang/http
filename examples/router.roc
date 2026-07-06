@@ -9,13 +9,13 @@ import http.Request
 import http.Response
 
 text_response = |status, body| {
-	response0 = Response.from_status(status)
-	response1 = Response.add_header(response0, "Content-Type", "text/plain")
-	Response.with_body(response1, Str.to_utf8(body))
+	Response.from_status(status)
+		.add_header("Content-Type", "text/plain")
+		.with_body(body.to_utf8())
 }
 
 route = |request|
-	match (Request.method(request), Request.uri(request)) {
+	match (request.method(), request.uri()) {
 		(GET, "/health") => text_response(200, "ok")
 		(GET, "/widgets") => text_response(200, "[]")
 		(POST, "/widgets") => text_response(201, "created")
@@ -23,10 +23,10 @@ route = |request|
 	}
 
 main! = |_args| {
-	request0 = Request.from_method(POST)
-	request = Request.with_uri(request0, "/widgets")
+	request = Request.from_method(POST)
+		.with_uri("/widgets")
 	response = route(request)
 
-	Stdout.line!("route status: ${Response.status(response).to_str()}")
+	Stdout.line!("route status: ${response.status().to_str()}")
 	Ok({})
 }

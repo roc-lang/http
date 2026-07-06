@@ -1,6 +1,8 @@
+import Header
+
 Response :: {
 	status : U16,
-	headers : List((Str, Str)),
+	headers : List(Header),
 	body : List(U8),
 }.{
 
@@ -18,7 +20,7 @@ Response :: {
 	status = |resp| resp.status
 
 	## Get the list of HTTP headers in the response.
-	headers : Response -> List((Str, Str))
+	headers : Response -> List(Header)
 	headers = |resp| resp.headers
 
 	## Get the body of the response.
@@ -34,7 +36,7 @@ Response :: {
 	## The HTTP spec [allows](https://www.rfc-editor.org/rfc/rfc7230#section-3.2.2) multiple headers to
 	## have the same name. However, some recipients may not interpret this the way you would hope
 	## they would, so it's generally best to make all the header names unique.
-	with_headers : Response, List((Str, Str)) -> Response
+	with_headers : Response, List(Header) -> Response
 	with_headers = |resp, new_headers| { ..resp, headers: new_headers }
 
 	## Add a header to the response's list of [HTTP headers](https://en.wikipedia.org/wiki/List_of_HTTP_header_fields).
@@ -43,7 +45,7 @@ Response :: {
 	## have the same name. However, some recipients may not interpret this the way you would hope
 	## they would, so it's generally best to make all the header names unique.
 	add_header : Response, Str, Str -> Response
-	add_header = |resp, name, value| { ..resp, headers: List.append(resp.headers, (name, value)) }
+	add_header = |resp, name, value| { ..resp, headers: resp.headers.append({ name, value }) }
 
 	## Set the body of the response.
 	with_body : Response, List(U8) -> Response

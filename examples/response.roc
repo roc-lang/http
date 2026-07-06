@@ -7,12 +7,12 @@ import pf.Stdout
 import http.Response
 
 main! = |_args| {
-	response0 = Response.from_status(404)
-	response1 = Response.add_header(response0, "Content-Type", "text/plain")
-	response = Response.with_body(response1, Str.to_utf8("not found"))
+	response = Response.from_status(404)
+		.add_header("Content-Type", "text/plain")
+		.with_body("not found".to_utf8())
 
-	Stdout.line!("status: ${Response.status(response).to_str()}")
-	Stdout.line!("headers: ${Response.headers(response).len().to_str()}")
-	Stdout.line!("body bytes: ${Response.body(response).len().to_str()}")
+	Stdout.line!("status: ${response.status().to_str()}")
+	Stdout.line!("headers: ${response.headers().len().to_str()}")
+	Stdout.line!("body bytes: ${response.body().len().to_str()}")
 	Ok({})
 }

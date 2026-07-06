@@ -8,9 +8,9 @@ import http.Method
 import http.Request
 
 main! = |_args| {
-	request0 = Request.from_method(Unknown("PROPFIND"))
-	request = Request.with_uri(request0, "https://dav.example.com/docs")
+	request = Request.from_method(Unknown("PROPFIND"))
+		.with_uri("https://dav.example.com/docs")
 
-	Stdout.line!("custom method: ${Request.method_str(request)}")
+	Stdout.line!("custom method: ${request.method_str()}")
 	Ok({})
 }

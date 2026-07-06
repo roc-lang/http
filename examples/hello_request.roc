@@ -8,9 +8,9 @@ import http.Method
 import http.Request
 
 main! = |_args| {
-	request0 = Request.from_method(GET)
-	request = Request.with_uri(request0, "https://example.com/widgets")
+	request = Request.from_method(GET)
+		.with_uri("https://example.com/widgets")
 
-	Stdout.line!("${Request.method_str(request)} ${Request.uri(request)}")
+	Stdout.line!("${request.method_str()} ${request.uri()}")
 	Ok({})
 }
