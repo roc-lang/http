@@ -9,11 +9,13 @@ import http.Method
 import http.Request
 import http.Response
 
+main! : List(Str) => Try({}, [Exit(I32)])
 main! = |_args| {
 	Stdout.line!("Run `roc test examples/tests.roc` to exercise the http package examples.")
 	Ok({})
 }
 
+## Request builders set method, URI, headers, body, and timeout.
 expect {
 	request = Request.from_method(POST)
 		.with_uri("https://example.com/messages")
@@ -29,11 +31,13 @@ expect {
 						and request.timeout() == TimeoutMilliseconds(250)
 }
 
+## Unknown methods keep their original wire value.
 expect {
 	request = Request.from_method(Unknown("PROPFIND"))
 	request.method_str() == "PROPFIND"
 }
 
+## QUERY is available as a built-in HTTP method.
 expect {
 	request = Request.from_method(QUERY)
 	query : Method
@@ -42,6 +46,7 @@ expect {
 	request.method_str() == "QUERY" and query.to_str() == "QUERY"
 }
 
+## Method equality distinguishes known methods from unknown strings.
 expect {
 	query : Method
 	query = QUERY
@@ -61,6 +66,7 @@ expect {
 				and propfind.is_eq(Unknown("PROPFIND"))
 }
 
+## Header helpers format and compare header records.
 expect {
 	header : Header
 	header = { name: "Content-Type", value: "text/plain" }
@@ -70,6 +76,7 @@ expect {
 			and !header.is_eq({ name: "Content-Type", value: "application/json" })
 }
 
+## Response builders set status, headers, and body.
 expect {
 	response = Response.from_status(204)
 		.add_header("X-Test", "yes")

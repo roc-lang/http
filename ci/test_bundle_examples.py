@@ -114,11 +114,8 @@ def run_example_apps(examples: list[Path]) -> None:
 
 
 def run_example_tests(examples: list[Path]) -> None:
-    tests = [example for example in examples if example.name == "tests.roc"]
-    if len(tests) != 1:
-        raise SystemExit("Expected exactly one examples/tests.roc file")
-
-    run(["roc", "test", tests[0].name, "--no-cache"], cwd=tests[0].parent)
+    for example in examples:
+        run(["roc", "test", example.name, "--no-cache"], cwd=example.parent)
 
 
 def build_and_run_examples(examples: list[Path], build_dir: Path) -> None:

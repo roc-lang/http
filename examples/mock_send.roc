@@ -8,6 +8,7 @@ import http.Method
 import http.Request
 import http.Response
 
+mock_send : Request -> Response
 mock_send = |request|
 	if request.method() == GET {
 		Response.from_status(200)
@@ -17,11 +18,14 @@ mock_send = |request|
 		Response.from_status(405)
 	}
 
+main! : List(Str) => Try({}, [Exit(I32)])
 main! = |_args| {
 	request = Request.from_method(GET)
 		.with_uri("https://example.com/offline")
+
 	response = mock_send(request)
 
 	Stdout.line!("mock status: ${response.status().to_str()}")
+
 	Ok({})
 }
