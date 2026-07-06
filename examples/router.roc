@@ -31,23 +31,18 @@ JsonOkBody : {
 	ok : Bool,
 }
 
-WidgetRequestError : [BadBodyUtf8, BadBodyJson(Json)]
+WidgetRequestError : [BadBodyUtf8, BadBodyJson(Json.ParseErr)]
 
 body_str : Response -> Str
 body_str = |response| Str.from_utf8(response.body()) ?? "<invalid utf8>"
 
-json_response : U16, _ -> Try(Response, _)
-json_response = |status, body| {
-	json = Json.encode(body)?
+json_response : U16, _ -> Response
+json_response = |status, body|
+	Response.from_status(status)
+		.add_header("Content-Type", "application/json")
+		.with_body(Json.to_str(body).to_utf8())
 
-	Ok(
-		Response.from_status(status)
-			.add_header("Content-Type", "application/json")
-			.with_body(json.to_utf8()),
-	)
-}
-
-json_error : U16, Str -> Try(Response, _)
+json_error : U16, Str -> Response
 json_error = |status, message| {
 	body : ErrorBody
 	body = { error: message }
@@ -55,7 +50,7 @@ json_error = |status, message| {
 	json_response(status, body)
 }
 
-list_widgets : () -> Try(Response, _)
+list_widgets : () -> Response
 list_widgets = || {
 	body : WidgetsBody
 	body = {
@@ -83,31 +78,25 @@ create_widget_response = |request| {
 	body : Widget
 	body = { id: 3, name: widget.name, quantity: widget.quantity }
 
-	json_response(201, body)
+	Ok(json_response(201, body))
 }
 
-widget_error_response : WidgetRequestError -> Try(Response, _)
+widget_error_response : WidgetRequestError -> Response
 widget_error_response = |err|
 	match err {
 		BadBodyUtf8 => json_error(400, "request body must be UTF-8")
 		BadBodyJson(_) => json_error(400, "invalid widget json")
 	}
 
-create_widget : Request -> Try(Response, _)
+create_widget : Request -> Response
 create_widget = |request|
 	match create_widget_response(request) {
-		Ok(response) => Ok(response)
+		Ok(response) => response
 		Err(err) => widget_error_response(err)
 	}
 
-internal_error_response : () -> Response
-internal_error_response = ||
-	Response.from_status(500)
-		.add_header("Content-Type", "application/json")
-		.with_body("{\"error\":\"json encode failed\"}".to_utf8())
-
-route_result : Request -> Try(Response, _)
-route_result = |request| {
+route : Request -> Response
+route = |request|
 	match (request.method(), request.uri()) {
 		(GET, "/health") => {
 			body : JsonOkBody
@@ -119,10 +108,6 @@ route_result = |request| {
 		(POST, "/widgets") => create_widget(request)
 		_ => json_error(404, "not found")
 	}
-}
-
-route : Request -> Response
-route = |request| route_result(request) ?? internal_error_response()
 
 main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
