@@ -44,7 +44,15 @@ expect {
 }
 
 ## Header parsing reports missing required fields.
-expect parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.MissingRequired)
+expect
+	match parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") {
+		Err(Encoding.HttpHeader.MissingRequired) => Bool.True
+		_ => Bool.False
+	}
 
 ## Header parsing reports invalid field values.
-expect parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.BadHeader)
+expect
+	match parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") {
+		Err(Encoding.HttpHeader.BadHeader) => Bool.True
+		_ => Bool.False
+	}
