@@ -21,13 +21,11 @@ main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
 	request = Request.from_method(GET)
 		.with_uri("https://api.example.com/items")
-		.with_headers(
-			[
-				{ name: "Accept", value: "application/json" },
-				{ name: "X-Trace-Id", value: "demo-123" },
-				{ name: "X-Trace-Id", value: "demo-456" },
-			],
-		)
+		.with_headers([
+			{ name: "Accept", value: "application/json" },
+			{ name: "X-Trace-Id", value: "demo-123" },
+			{ name: "X-Trace-Id", value: "demo-456" },
+		])
 
 	Stdout.line!(Str.inspect(request.headers()))?
 
@@ -46,7 +44,15 @@ expect {
 }
 
 ## Header parsing reports missing required fields.
-expect parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.MissingRequired)
+expect
+	match parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") {
+		Err(Encoding.HttpHeader.MissingRequired) => Bool.True
+		_ => Bool.False
+	}
 
 ## Header parsing reports invalid field values.
-expect parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") == Err(Encoding.HttpHeader.BadHeader)
+expect
+	match parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") {
+		Err(Encoding.HttpHeader.BadHeader) => Bool.True
+		_ => Bool.False
+	}
