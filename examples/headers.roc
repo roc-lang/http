@@ -21,13 +21,11 @@ main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
 main! = |_args| {
 	request = Request.from_method(GET)
 		.with_uri("https://api.example.com/items")
-		.with_headers(
-			[
-				{ name: "Accept", value: "application/json" },
-				{ name: "X-Trace-Id", value: "demo-123" },
-				{ name: "X-Trace-Id", value: "demo-456" },
-			],
-		)
+		.with_headers([
+			{ name: "Accept", value: "application/json" },
+			{ name: "X-Trace-Id", value: "demo-123" },
+			{ name: "X-Trace-Id", value: "demo-456" },
+		])
 
 	Stdout.line!(Str.inspect(request.headers()))?
 

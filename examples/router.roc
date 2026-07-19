@@ -31,14 +31,14 @@ JsonOkBody : {
 	ok : Bool,
 }
 
-WidgetRequestError : [BadBodyUtf8, BadBodyJson(Json)]
+WidgetRequestError : [BadBodyUtf8, BadBodyJson(Json.ParseErr)]
 
 body_str : Response -> Str
 body_str = |response| Str.from_utf8(response.body()) ?? "<invalid utf8>"
 
 json_response : U16, _ -> Try(Response, _)
 json_response = |status, body| {
-	json = Json.encode(body)?
+	json = Json.to_str_try(body)?
 
 	Ok(
 		Response.from_status(status)
