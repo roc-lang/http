@@ -14,7 +14,7 @@ ParsedHeaders : {
 	x_trace_id : Str,
 }
 
-parse_headers : Str -> Try(ParsedHeaders, Encoding.HttpHeader)
+parse_headers : Str -> Try(ParsedHeaders, [BadHeader, MissingRequiredField(Str)])
 parse_headers = |raw| Encoding.HttpHeader.parse(raw)
 
 main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
@@ -46,13 +46,13 @@ expect {
 ## Header parsing reports missing required fields.
 expect
 	match parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") {
-		Err(Encoding.HttpHeader.MissingRequired) => Bool.True
+		Err(MissingRequiredField(_)) => Bool.True
 		_ => Bool.False
 	}
 
 ## Header parsing reports invalid field values.
 expect
 	match parse_headers("accept: application/json\r\ncontent-length: nope\r\nx-trace-id: demo-123\r\n") {
-		Err(Encoding.HttpHeader.BadHeader) => Bool.True
+		Err(BadHeader) => Bool.True
 		_ => Bool.False
 	}

@@ -31,7 +31,9 @@ JsonOkBody : {
 	ok : Bool,
 }
 
-WidgetRequestError : [BadBodyUtf8, BadBodyJson(Json.ParseErr)]
+JsonParseError : [InvalidJson(Str), MissingRequiredField(Str)]
+
+WidgetRequestError : [BadBodyUtf8, BadBodyJson(JsonParseError)]
 
 body_str : Response -> Str
 body_str = |response| Str.from_utf8(response.body()) ?? "<invalid utf8>"
