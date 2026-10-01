@@ -1,9 +1,7 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
 	http: "../package/main.roc",
 }
 
-import pf.Stdout
 import http.Method
 import http.Request
 import http.Response
@@ -111,15 +109,14 @@ route = |request|
 		_ => json_error(404, "not found")
 	}
 
-main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
-main! = |_args| {
+main! = |_| {
 	request = Request.from_method(POST)
 		.with_uri("/widgets")
 		.with_body("{\"name\":\"washer\",\"quantity\":5}".to_utf8())
 
 	response = route(request)
 
-	Stdout.line!("route status: ${response.status().to_str()} ${body_str(response)}")?
+	echo!("route status: ${response.status().to_str()} ${body_str(response)}\n")
 
 	Ok({})
 }
