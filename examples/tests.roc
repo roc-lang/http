@@ -1,17 +1,14 @@
 app [main!] {
-	pf: platform "https://github.com/lukewilliamboswell/roc-platform-template-zig/releases/download/1.0.0/AnZoxzoGPtSGQ15EQh6pBeeaHJ7aizP9MQhK81dES3Uq.tar.zst",
 	http: "../package/main.roc",
 }
 
-import pf.Stdout
 import http.Header
 import http.Method
 import http.Request
 import http.Response
 
-main! : List(Str) => Try({}, [Exit(I32), StdoutErr(Str), ..])
-main! = |_args| {
-	Stdout.line!("Run `roc test examples/tests.roc` to exercise the http package examples.")?
+main! = |_| {
+	echo!("Run `roc test examples/tests.roc` to exercise the http package examples.\n")
 	Ok({})
 }
 
