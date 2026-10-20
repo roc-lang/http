@@ -130,7 +130,7 @@ expect {
 
 	response.status() == 200
 		and response.headers() == [{ name: "Content-Type", value: "application/json" }]
-			and parsed == { ok: True }
+		and parsed == { ok: True }
 }
 
 ## POST /widgets creates a widget from valid JSON.
