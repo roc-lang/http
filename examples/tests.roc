@@ -22,10 +22,10 @@ expect {
 
 	request.method() == POST
 		and request.method_str() == "POST"
-			and request.uri() == "https://example.com/messages"
-				and request.headers() == [{ name: "Content-Type", value: "text/plain" }]
-					and request.body() == "hello".to_utf8()
-						and request.timeout() == TimeoutMilliseconds(250)
+		and request.uri() == "https://example.com/messages"
+		and request.headers() == [{ name: "Content-Type", value: "text/plain" }]
+		and request.body() == "hello".to_utf8()
+		and request.timeout() == TimeoutMilliseconds(250)
 }
 
 ## Unknown methods keep their original wire value.
@@ -59,8 +59,8 @@ expect {
 
 	query.is_eq(query)
 		and !query.is_eq(get)
-			and !unknown_query.is_eq(query)
-				and propfind.is_eq(Unknown("PROPFIND"))
+		and !unknown_query.is_eq(query)
+		and propfind.is_eq(Unknown("PROPFIND"))
 }
 
 ## Header helpers format and compare header records.
@@ -70,7 +70,7 @@ expect {
 
 	header.to_str() == "Content-Type: text/plain"
 		and header.is_eq({ name: "Content-Type", value: "text/plain" })
-			and !header.is_eq({ name: "Content-Type", value: "application/json" })
+		and !header.is_eq({ name: "Content-Type", value: "application/json" })
 }
 
 ## Response builders set status, headers, and body.
@@ -81,5 +81,5 @@ expect {
 
 	response.status() == 204
 		and response.headers() == [{ name: "X-Test", value: "yes" }]
-			and response.body() == []
+		and response.body() == []
 }

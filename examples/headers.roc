@@ -36,8 +36,8 @@ expect {
 
 	parsed.accept == "application/json"
 		and parsed.content_length == 42
-			and parsed.x_trace_id == "demo-123"
-				and optional == "none"
+		and parsed.x_trace_id == "demo-123"
+		and optional == "none"
 }
 
 ## Header parsing reports missing required fields.
