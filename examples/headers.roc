@@ -12,7 +12,7 @@ ParsedHeaders : {
 	x_trace_id : Str,
 }
 
-parse_headers : Str -> Try(ParsedHeaders, [BadHeader, MissingRequiredField(Str)])
+parse_headers : Str -> Try(ParsedHeaders, [BadHeader, MissingHeader(Str)])
 parse_headers = |raw| Encoding.HttpHeader.parse(raw)
 
 main! = |_| {
@@ -43,7 +43,7 @@ expect {
 ## Header parsing reports missing required fields.
 expect
 	match parse_headers("content-length: 42\r\nx-trace-id: demo-123\r\n") {
-		Err(MissingRequiredField(_)) => Bool.True
+		Err(MissingHeader(_)) => Bool.True
 		_ => Bool.False
 	}
 
